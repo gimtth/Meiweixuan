@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>前端CORS测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        button {
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>前端 CORS 测试工具</h1>
+    
+    <div class="container">
+        <h2>GET 请求测试</h2>
+        <button onclick="testGet()">测试 GET</button>
+        <div id="getResult"></div>
+    </div>
+    
+    <div class="container">
+        <h2>POST 请求测试</h2>
+        <button onclick="testPost()">测试 POST</button>
+        <div id="postResult"></div>
+    </div>
+    
+    <div class="container">
+        <h2>登录测试</h2>
+        <div>
+            <label for="username">用户名:</label>
+            <input type="text" id="username" value="admin">
+        </div>
+        <div style="margin-top: 10px;">
+            <label for="password">密码:</label>
+            <input type="password" id="password" value="admin123">
+        </div>
+        <div style="margin-top: 10px;">
+            <button onclick="testLogin('user')">测试用户登录</button>
+            <button onclick="testLogin('admin')">测试管理员登录</button>
+        </div>
+        <div id="loginResult"></div>
+    </div>
+
+    <script>
+        const apiBaseUrl = 'http://localhost:8080';
+        
+        function displayResult(elementId, success, data, error) {
+            const element = document.getElementById(elementId);
+            if (success) {
+                element.innerHTML = `<p class="success">成功!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } else {
+                element.innerHTML = `<p class="error">错误: ${error}</p>`;
+                console.error('Error:', error);
+            }
+        }
+
+        async function testGet() {
+            try {
+                const response = await fetch(`${apiBaseUrl}/test/hello`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResult('getResult', true, data);
+            } catch (error) {
+                displayResult('getResult', false, null, error.message);
+            }
+        }
+
+        async function testPost() {
+            try {
+                const testData = { 
+                    message: "测试数据",
+                    timestamp: new Date().toISOString()
+                };
+                
+                const response = await fetch(`${apiBaseUrl}/test/echo`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(testData),
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResult('postResult', true, data);
+            } catch (error) {
+                displayResult('postResult', false, null, error.message);
+            }
+        }
+
+        async function testLogin(userType) {
+            try {
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                const loginData = {
+                    username: username,
+                    password: password,
+                    userType: userType
+                };
+                
+                const response = await fetch(`${apiBaseUrl}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(loginData),
+                    credentials: 'include'
+                });
+                
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        displayResult('loginResult', true, data);
+                    } else {
+                        displayResult('loginResult', false, null, data.message || '登录失败');
+                    }
+                } else {
+                    const text = await response.text();
+                    throw new Error(`非JSON响应: ${text}`);
+                }
+            } catch (error) {
+                displayResult('loginResult', false, null, error.message);
+            }
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+front/node_modules/
+back/target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build outputs
+front/dist/
+back/target/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+-p/
+back/-p/
+front/-p/
+back/back/
+
+# Package locks (optional, keep if you want consistent dependencies)
+# front/package-lock.json
+# front/yarn.lock
