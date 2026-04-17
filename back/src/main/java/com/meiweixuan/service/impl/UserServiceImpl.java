@@ -6,6 +6,7 @@ import com.meiweixuan.dto.LoginResponse;
 import com.meiweixuan.entity.User;
 import com.meiweixuan.service.UserService;
 import com.meiweixuan.util.JwtTokenUtil;
+import com.meiweixuan.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,9 @@ public class UserServiceImpl implements UserService {
     
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private PasswordUtil passwordUtil;
     
     @Override
     @Transactional
@@ -34,8 +38,12 @@ public class UserServiceImpl implements UserService {
         
         User user = userOptional.get();
         
-        if (!user.getPassword().equals(loginRequest.getPassword())) {
+        if (!passwordUtil.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new RuntimeException("密码错误");
+        }
+
+        if (passwordUtil.needsUpgrade(user.getPassword())) {
+            user.setPassword(passwordUtil.encode(loginRequest.getPassword()));
         }
         
         if (user.getStatus() != 1) {
@@ -52,6 +60,9 @@ public class UserServiceImpl implements UserService {
         loginResponse.setId(user.getId());
         loginResponse.setUsername(user.getUsername());
         loginResponse.setName(user.getName());
+        loginResponse.setPhone(user.getPhone());
+        loginResponse.setAddress(user.getAddress());
+        loginResponse.setRole(user.getRole());
         loginResponse.setToken(token);
         loginResponse.setUserType("user");
         
@@ -65,9 +76,11 @@ public class UserServiceImpl implements UserService {
         if (userDao.existsByUsername(user.getUsername())) {
             throw new RuntimeException("用户名已存在");
         }
-        
+
+        user.setPassword(passwordUtil.encode(user.getPassword()));
         user.setRegisterTime(new Date());
         user.setStatus(1);
+        user.setRole("ROLE_USER");
         
         return userDao.save(user);
     }

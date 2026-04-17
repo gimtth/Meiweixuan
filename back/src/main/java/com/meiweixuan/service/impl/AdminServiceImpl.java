@@ -6,6 +6,7 @@ import com.meiweixuan.dto.LoginResponse;
 import com.meiweixuan.entity.Admin;
 import com.meiweixuan.service.AdminService;
 import com.meiweixuan.util.JwtTokenUtil;
+import com.meiweixuan.util.PasswordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +22,9 @@ public class AdminServiceImpl implements AdminService {
     
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private PasswordUtil passwordUtil;
     
     @Override
     @Transactional
@@ -33,8 +37,12 @@ public class AdminServiceImpl implements AdminService {
         
         Admin admin = adminOptional.get();
         
-        if (!admin.getPassword().equals(loginRequest.getPassword())) {
+        if (!passwordUtil.matches(loginRequest.getPassword(), admin.getPassword())) {
             throw new RuntimeException("密码错误");
+        }
+
+        if (passwordUtil.needsUpgrade(admin.getPassword())) {
+            admin.setPassword(passwordUtil.encode(loginRequest.getPassword()));
         }
         
         if (admin.getStatus() != 1) {
@@ -51,6 +59,8 @@ public class AdminServiceImpl implements AdminService {
         loginResponse.setId(admin.getId());
         loginResponse.setUsername(admin.getUsername());
         loginResponse.setName(admin.getName());
+        loginResponse.setPhone(admin.getPhone());
+        loginResponse.setRole("ROLE_ADMIN");
         loginResponse.setToken(token);
         loginResponse.setUserType("admin");
         

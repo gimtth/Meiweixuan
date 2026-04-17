@@ -1,5 +1,6 @@
 package com.meiweixuan.service;
 
+import com.meiweixuan.dto.OrderCreateRequest;
 import com.meiweixuan.entity.Order;
 
 import java.util.List;
@@ -31,7 +32,7 @@ public interface OrderService {
      * @param order 订单对象
      * @return 创建后的订单对象
      */
-    Order createOrder(Order order);
+    Order createOrder(Integer userId, OrderCreateRequest orderCreateRequest);
     
     /**
      * 更新订单状态
@@ -46,7 +47,15 @@ public interface OrderService {
      * @param id 订单ID
      * @return 取消后的订单对象
      */
-    Order cancelOrder(Long id);
+    Order cancelOrder(Long id, Integer userId);
+
+    /**
+     * 用户确认收货
+     * @param id 订单ID
+     * @param userId 用户ID
+     * @return 更新后的订单对象
+     */
+    Order confirmOrderReceived(Long id, Integer userId);
     
     /**
      * 删除订单

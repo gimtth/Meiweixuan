@@ -1,372 +1,303 @@
-# 美味轩在线订餐系统 - 前端项目
+# 美味轩线上点餐系统
 
-> 一个基于 Vue 3 + Element Plus 的现代化餐厅在线订餐系统前端应用
+一个基于 `Vue 3 + Spring Boot + Spring Data JPA + MySQL + JWT` 的前后端分离在线点餐系统，包含用户端点餐流程与管理员后台管理功能。
 
 ## 项目简介
 
-这是一个功能完善的餐厅在线订餐系统前端项目，采用 Vue 3 生态系统构建，提供用户端和管理端双重界面。项目实现了从浏览菜单、加入购物车、下单支付到订单管理的完整业务流程，同时为管理员提供了数据统计、菜品管理、订单管理等后台功能。
+本项目围绕餐厅线上订餐场景实现了完整业务闭环，覆盖菜单浏览、购物车管理、订单创建、订单查询、管理员登录、菜品管理、分类管理、订单管理、用户管理和数据统计等核心功能。
 
-## 项目亮点
+项目采用前后端分离架构：
 
-- **现代化技术栈**：Vue 3 Composition API + Vite + Pinia + Vue Router 4
-- **组件化开发**：高度模块化的组件设计，代码复用性强
-- **状态管理**：使用 Pinia 进行全局状态管理，数据流清晰
-- **路由守卫**：完善的权限控制和路由拦截机制
-- **响应式设计**：适配多种设备屏幕尺寸
-- **用户体验优化**：流畅的页面交互和友好的错误提示
+- 前端：`Vue 3 + Vite + Pinia + Vue Router + Element Plus`
+- 后端：`Spring Boot + Spring Data JPA + MySQL`
+- 鉴权：`JWT + 拦截器`
+
+该项目适合作为 Java Web / Spring Boot / 前后端联调类项目展示。
 
 ## 技术栈
 
-### 核心框架
-- **Vue 3.5.13** - 渐进式 JavaScript 框架
-- **Vite 6.3.5** - 新一代前端构建工具
-- **Vue Router 4.5.1** - 官方路由管理器
-- **Pinia 3.0.2** - Vue 官方状态管理库
+### 前端
 
-### UI 组件库
-- **Element Plus 2.9.10** - 基于 Vue 3 的组件库
-- **Font Awesome** - 图标库
+- Vue 3
+- Vite
+- Vue Router 4
+- Pinia
+- Axios
+- Element Plus
+- ECharts
 
-### 数据可视化
-- **ECharts 5.6.0** - 数据统计图表展示
+### 后端
 
-### HTTP 请求
-- **Axios 1.9.0** - Promise 基础的 HTTP 客户端
-
-### 地图服务
-- **高德地图 API** - 店铺位置展示
-
-## 项目结构
-
-```
-front/
-├── public/                 # 静态资源
-│   ├── fontawesome/       # 字体图标
-│   └── images/            # 公共图片
-├── src/
-│   ├── api/               # API 接口封装
-│   │   ├── http.js       # Axios 实例配置
-│   │   ├── authApi.js    # 认证相关接口
-│   │   ├── dishApi.js    # 菜品相关接口
-│   │   ├── cartApi.js    # 购物车接口
-│   │   ├── orderApi.js   # 订单接口
-│   │   └── adminApi.js   # 管理员接口
-│   ├── assets/            # 资源文件
-│   │   ├── css/          # 样式文件
-│   │   ├── images/       # 图片资源
-│   │   └── styles/       # 全局样式
-│   ├── components/        # 公共组件
-│   │   ├── TheHeader.vue      # 头部导航
-│   │   ├── TheFooter.vue      # 底部信息
-│   │   ├── DishCard.vue       # 菜品卡片
-│   │   ├── CartItem.vue       # 购物车项
-│   │   ├── CartSummary.vue    # 购物车汇总
-│   │   ├── CategoryList.vue   # 分类列表
-│   │   └── OrderStatus.vue    # 订单状态
-│   ├── router/            # 路由配置
-│   │   └── index.js      # 路由定义和守卫
-│   ├── store/             # 状态管理
-│   │   ├── auth.js       # 认证状态
-│   │   └── cart.js       # 购物车状态
-│   ├── views/             # 页面组件
-│   │   ├── Home.vue           # 首页
-│   │   ├── Menu.vue           # 菜单页
-│   │   ├── DishDetail.vue     # 菜品详情
-│   │   ├── Cart.vue           # 购物车
-│   │   ├── Checkout.vue       # 结算页
-│   │   ├── Orders.vue         # 订单列表
-│   │   ├── OrderDetail.vue    # 订单详情
-│   │   ├── Profile.vue        # 个人中心
-│   │   ├── Login.vue          # 用户登录
-│   │   ├── Register.vue       # 用户注册
-│   │   ├── Activity.vue       # 优惠活动
-│   │   ├── About.vue          # 关于我们
-│   │   ├── Contact.vue        # 联系我们
-│   │   └── admin/             # 管理后台页面
-│   │       ├── AdminLogin.vue     # 管理员登录
-│   │       ├── Dashboard.vue      # 管理面板
-│   │       ├── Statistics.vue     # 数据统计
-│   │       ├── CategoryManage.vue # 分类管理
-│   │       ├── DishManage.vue     # 菜品管理
-│   │       ├── OrderManage.vue    # 订单管理
-│   │       └── UserManage.vue     # 用户管理
-│   ├── App.vue            # 根组件
-│   └── main.js            # 入口文件
-├── index.html             # HTML 模板
-├── vite.config.js         # Vite 配置
-└── package.json           # 项目依赖
-```
+- Java 11
+- Spring Boot 2.7
+- Spring MVC
+- Spring Data JPA
+- MySQL
+- JWT
+- BCrypt
 
 ## 核心功能
 
-### 用户端功能
+### 用户端
 
-#### 1. 首页展示
-- 轮播图展示餐厅特色菜品
-- 热门菜品推荐
-- 优惠活动入口
-- 餐厅简介
+- 首页轮播和菜品推荐展示
+- 菜单浏览与分类筛选
+- 购物车增删改查
+- 提交订单
+- 订单列表与订单详情查看
+- 用户注册、登录、个人信息维护
 
-#### 2. 菜单浏览
-- 按分类筛选菜品
-- 菜品搜索功能
-- 菜品详情查看
-- 价格和描述展示
+### 管理端
 
-#### 3. 购物车管理
-- 添加/删除菜品
-- 修改菜品数量
-- 实时计算总价
-- 清空购物车
+- 管理员登录
+- 分类管理
+- 菜品管理
+- 订单管理与状态流转
+- 用户管理
+- 数据统计展示
 
-#### 4. 订单流程
-- 订单结算
-- 配送信息填写
-- 订单提交
-- 订单状态跟踪
-- 历史订单查看
+## 业务流程
 
-#### 5. 用户中心
-- 个人信息管理
-- 订单历史记录
-- 收货地址管理
+### 用户下单主流程
 
-#### 6. 用户认证
-- 用户注册
-- 用户登录
-- JWT Token 认证
-- 自动登录状态保持
+1. 用户注册并登录系统
+2. 浏览菜品并加入购物车
+3. 填写配送信息并提交订单
+4. 系统根据购物车生成订单与订单明细
+5. 用户在订单中心查看订单状态
+6. 管理员在后台更新订单状态
+7. 用户确认收货，订单完成
 
-### 管理端功能
+### 后台管理流程
 
-#### 1. 数据统计
-- 订单统计图表（ECharts）
-- 销售额统计
-- 用户增长趋势
-- 热门菜品排行
+1. 管理员登录后台
+2. 查看统计面板
+3. 管理分类、菜品、订单和用户信息
+4. 对订单进行状态更新
 
-#### 2. 分类管理
-- 分类增删改查
-- 分类排序
+## 项目结构
 
-#### 3. 菜品管理
-- 菜品增删改查
-- 菜品图片上传
-- 菜品状态管理
-- 库存管理
+```text
+.
+├── back                        # Spring Boot 后端
+│   ├── pom.xml
+│   └── src/main
+│       ├── java/com/meiweixuan
+│       │   ├── common         # 统一响应体
+│       │   ├── config         # MVC / JWT / CORS / 密码配置
+│       │   ├── controller     # 控制层
+│       │   ├── dao            # JPA Repository
+│       │   ├── dto            # 请求响应 DTO
+│       │   ├── entity         # 实体类
+│       │   ├── exception      # 全局异常处理
+│       │   ├── interceptor    # JWT 拦截器
+│       │   ├── service        # 业务层
+│       │   └── util           # Token / 密码工具
+│       └── resources
+│           ├── application.properties
+│           ├── meiweixuan.sql
+│           └── static/images
+├── front                       # Vue 3 前端
+│   ├── package.json
+│   ├── vite.config.js
+│   └── src
+│       ├── api                # 接口封装
+│       ├── assets             # 静态资源
+│       ├── components         # 公共组件
+│       ├── router             # 路由配置
+│       ├── store              # Pinia 状态管理
+│       └── views              # 页面
+└── 运行截图
+```
 
-#### 4. 订单管理
-- 订单列表查看
-- 订单状态更新
-- 订单详情查看
-- 订单搜索筛选
+## 系统设计说明
 
-#### 5. 用户管理
-- 用户列表查看
-- 用户状态管理
-- 用户信息查询
+### 前后端分离
 
-## 🎨 界面展示
+- 前端负责页面渲染、状态管理、路由控制和接口调用
+- 后端负责业务逻辑、数据库访问、权限校验和统一异常处理
 
-### 用户端界面
+### 统一响应规范
 
-#### 首页
-![首页1](运行截图/首页1.png)
-![首页2](运行截图/首页2.png)
-![首页3](运行截图/首页3.png)
+后端统一使用 `Result<T>` 作为接口返回格式：
 
-#### 菜单页面
-![菜单](运行截图/菜单.png)
+```json
+{
+  "code": 200,
+  "message": "操作成功",
+  "data": {}
+}
+```
 
-#### 购物车
-![购物车](运行截图/购物车.png)
+前端在 `front/src/api/http.js` 中统一处理成功响应、业务异常和登录失效跳转。
 
-#### 订单中心
-![订单中心](运行截图/订单中心.png)
+### 权限控制
 
-#### 个人中心
-![个人中心](运行截图/个人中心.png)
+- 普通用户接口：使用用户 JWT 访问
+- 管理员接口：使用管理员 JWT 访问
+- 后端通过 `JwtInterceptor` 拦截请求并解析 `userId`、`username`、`userType`
+- 前端路由通过 `meta.requiresAuth` 和 `meta.requiresAdmin` 进行页面访问控制
 
-#### 优惠活动
-![优惠活动](运行截图/优惠活动.png)
+### 密码安全
 
-#### 关于我们
-![关于我们1](运行截图/关于我们1.png)
-![关于我们2](运行截图/关于我们2.png)
+- 新注册用户密码使用 `BCrypt` 加密存储
+- 历史明文密码账号支持兼容校验
+- 老账号首次成功登录后会自动升级为加密密码
 
-#### 用户登录
-![登录](运行截图/登录.png)
+## 数据库说明
 
-#### 用户注册
-![注册](运行截图/注册.png)
+数据库脚本位于：
 
-### 管理端界面
+- `back/src/main/resources/meiweixuan.sql`
 
-#### 数据统计
-![数据统计](运行截图/数据统计.png)
+当前项目核心表包括：
 
-#### 分类管理
-![分类管理](运行截图/分类管理.png)
+- `yonghu`：用户表
+- `guanliyuan`：管理员表
+- `caipinfenlei`：菜品分类表
+- `caipin`：菜品表
+- `gouwuche`：购物车表
+- `orders`：订单表
+- `order_items`：订单明细表
 
-#### 菜品管理
-![菜品管理](运行截图/菜品管理.png)
+## 接口说明
 
-#### 订单管理
-![订单管理](运行截图/订单管理.png)
+### 公开接口
 
-#### 用户管理
-![用户管理](运行截图/用户管理.png)
+- `GET /api/caipin`：获取菜品列表
+- `GET /api/caipinfenlei`：获取分类列表
+- `GET /api/banner`：获取首页轮播图
+- `POST /api/yonghu/login`：用户登录
+- `POST /api/yonghu/register`：用户注册
+- `POST /api/admin/login`：管理员登录
 
-## 🚀 快速开始
+### 用户接口
+
+- `GET /api/cart`：获取购物车
+- `POST /api/cart/add`：添加购物车
+- `PUT /api/cart/update`：修改购物车数量
+- `DELETE /api/cart/item/{id}`：删除购物车项
+- `DELETE /api/cart/clear`：清空购物车
+- `POST /api/orders`：创建订单
+- `GET /api/orders`：获取当前用户订单列表
+- `GET /api/orders/{id}`：获取订单详情
+- `PUT /api/orders/{id}/cancel`：取消订单
+- `PUT /api/orders/{id}/confirm`：确认收货
+- `GET /api/yonghu/info`：获取用户信息
+- `PUT /api/yonghu/update`：更新用户信息
+
+### 管理员接口
+
+- `GET /api/admin/info`：获取管理员信息
+- `GET /api/admin/categories`：分类列表
+- `POST /api/admin/categories`：新增分类
+- `PUT /api/admin/categories/{id}`：修改分类
+- `DELETE /api/admin/categories/{id}`：删除分类
+- `GET /api/admin/dishes`：菜品列表
+- `POST /api/admin/dishes`：新增菜品
+- `PUT /api/admin/dishes/{id}`：修改菜品
+- `DELETE /api/admin/dishes/{id}`：删除菜品
+- `GET /api/admin/orders`：订单列表
+- `GET /api/admin/orders/{id}`：订单详情
+- `PUT /api/admin/orders/{id}/status`：更新订单状态
+- `GET /api/admin/users`：用户列表
+- `PUT /api/admin/users/{id}`：修改用户
+- `DELETE /api/admin/users/{id}`：删除用户
+- `GET /api/admin/stats/overview`：数据统计总览
+
+## 本地运行
 
 ### 环境要求
-- Node.js >= 16.0.0
-- npm >= 8.0.0 或 yarn >= 1.22.0
 
-### 安装依赖
+- JDK 11
+- Maven 3.6+
+- Node.js 16+
+- MySQL 8.x
+
+### 1. 初始化数据库
+
+创建数据库：
+
+```sql
+CREATE DATABASE meiweixuan DEFAULT CHARACTER SET utf8mb4;
+```
+
+导入脚本：
+
+```bash
+mysql -uroot -p meiweixuan < back/src/main/resources/meiweixuan.sql
+```
+
+### 2. 配置后端
+
+修改文件：
+
+- `back/src/main/resources/application.properties`
+
+重点配置：
+
+- `spring.datasource.url`
+- `spring.datasource.username`
+- `spring.datasource.password`
+
+默认端口：
+
+- 后端：`8082`
+- 项目前缀：`/api`
+
+### 3. 启动后端
+
+```bash
+cd back
+mvn spring-boot:run
+```
+
+或：
+
+```bash
+mvn clean package
+java -jar target/meiweixuan-backend-0.0.1-SNAPSHOT.jar
+```
+
+### 4. 启动前端
+
 ```bash
 cd front
 npm install
-# 或
-yarn install
-```
-
-### 开发环境运行
-```bash
 npm run dev
-# 或
-yarn dev
 ```
 
-访问 http://localhost:5173
+默认访问地址：
 
-### 生产环境构建
-```bash
-npm run build
-# 或
-yarn build
-```
+- 前端开发环境：[http://localhost:5173](http://localhost:5173)
 
-### 预览生产构建
-```bash
-npm run preview
-# 或
-yarn preview
-```
+## 默认账号说明
 
-## 配置说明
+数据库初始脚本中包含演示账号：
 
-### API 代理配置
-在 `vite.config.js` 中配置了开发环境的 API 代理：
+### 普通用户
 
-```javascript
-server: {
-  proxy: {
-    '/api': {
-      target: 'http://localhost:8082',  
-      changeOrigin: true,
-      secure: false
-    }
-  }
-}
-```
+- 用户名：`user1`
+- 密码：`123456`
 
-### 路由配置
-- 使用 HTML5 History 模式
-- 实现了路由守卫进行权限控制
-- 支持路由懒加载优化性能
+### 管理员
 
-### 状态管理
-- 使用 Pinia 进行状态管理
-- 持久化存储用户登录状态
-- 购物车状态实时同步
+- 用户名：`admin`
+- 密码：`123456`
 
-## 💡 核心技术实现
+说明：
 
-### 1. 认证机制
-- JWT Token 认证
-- Token 存储在 localStorage
-- 请求拦截器自动添加 Token
-- 响应拦截器处理 401 未授权
+- 首次使用旧脚本导入的明文密码账号登录后，系统会自动升级为加密密码。
 
-### 2. 路由守卫
-```javascript
-router.beforeEach((to, from, next) => {
-  // 检查是否需要登录
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next('/login')
-    return
-  }
-  
-  // 检查是否需要管理员权限
-  if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next('/404')
-    return
-  }
-  
-  next()
-})
-```
+## 项目亮点
 
-### 3. HTTP 请求封装
-- Axios 实例统一配置
-- 请求/响应拦截器
-- 错误统一处理
-- Loading 状态管理
+- 使用 `JWT + 拦截器` 实现用户端和管理员端双角色鉴权
+- 使用 `Result<T> + 全局异常处理` 实现统一接口返回和错误处理
+- 使用 `Spring Data JPA` 完成订单、菜品、购物车、用户等业务模块开发
+- 使用 `BCrypt` 提升账号密码存储安全性
+- 订单模块支持从购物车生成订单明细，形成完整业务闭环
+- 前端封装统一 `Axios` 请求层，支持登录失效处理与消息提示
 
-### 4. 组件通信
-- Props / Emit 父子组件通信
-- Pinia Store 跨组件状态共享
-- Event Bus（必要时）
+## 截图展示
 
-### 5. 性能优化
-- 路由懒加载
-- 图片懒加载
-- 组件按需引入
-- 代码分割
-
-## 开发规范
-
-### 代码风格
-- 使用 ES6+ 语法
-- 组件采用 Composition API
-- 遵循 Vue 3 官方风格指南
-
-### 命名规范
-- 组件名：PascalCase（如 `TheHeader.vue`）
-- 文件名：kebab-case 或 PascalCase
-- 变量名：camelCase
-- 常量名：UPPER_SNAKE_CASE
-
-### 目录规范
-- `components/` - 可复用组件
-- `views/` - 页面级组件
-- `api/` - API 接口
-- `store/` - 状态管理
-- `assets/` - 静态资源
-
-## 权限控制
-
-### 用户权限
-- 游客：可浏览首页、菜单、活动等公开页面
-- 普通用户：可使用购物车、下单、查看订单等功能
-- 管理员：可访问后台管理系统
-
-### 路由权限
-```javascript
-meta: {
-  requiresAuth: true,      // 需要登录
-  requiresAdmin: true      // 需要管理员权限
-}
-```
-
-## 项目特色
-
-1. **完整的业务流程**：从用户注册、浏览菜品、加入购物车到下单支付的完整闭环
-2. **双端设计**：用户端和管理端分离，各司其职
-3. **现代化架构**：采用最新的 Vue 3 生态系统，代码简洁高效
-4. **良好的用户体验**：流畅的交互动画，友好的错误提示
-5. **可扩展性强**：模块化设计，易于维护和扩展
-
-
-
+仓库 `运行截图` 目录下包含首页、菜单、购物车、订单中心、后台管理等页面截图，可用于项目展示和简历材料补充。

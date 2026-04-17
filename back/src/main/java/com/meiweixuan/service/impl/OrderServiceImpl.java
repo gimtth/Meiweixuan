@@ -1,14 +1,24 @@
 package com.meiweixuan.service.impl;
 
+import com.meiweixuan.dao.CartDao;
+import com.meiweixuan.dao.DishDao;
 import com.meiweixuan.dao.OrderDao;
+import com.meiweixuan.dao.OrderItemDao;
+import com.meiweixuan.dao.UserDao;
+import com.meiweixuan.dto.OrderCreateRequest;
+import com.meiweixuan.entity.Cart;
+import com.meiweixuan.entity.Dish;
 import com.meiweixuan.entity.Order;
 import com.meiweixuan.entity.OrderItem;
+import com.meiweixuan.entity.User;
+import com.meiweixuan.exception.BusinessException;
 import com.meiweixuan.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +28,18 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private OrderDao orderDao;
+
+    @Autowired
+    private OrderItemDao orderItemDao;
+
+    @Autowired
+    private CartDao cartDao;
+
+    @Autowired
+    private DishDao dishDao;
+
+    @Autowired
+    private UserDao userDao;
 
     @Override
     public List<Order> getAllOrders() {
@@ -46,29 +68,82 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order createOrder(Order order) {
-        // 生成订单号
+    public Order createOrder(Integer userId, OrderCreateRequest orderCreateRequest) {
+        List<Cart> cartItems = cartDao.findByUserId(userId);
+        if (cartItems.isEmpty()) {
+            throw new BusinessException(400, "购物车为空，无法提交订单");
+        }
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new BusinessException(404, "用户不存在"));
+
+        user.setName(orderCreateRequest.getName());
+        user.setPhone(orderCreateRequest.getPhone());
+        user.setAddress(orderCreateRequest.getAddress());
+        userDao.save(user);
+
+        Order order = new Order();
+        order.setUserId(userId);
+        order.setAddress(orderCreateRequest.getAddress());
+        order.setPhone(orderCreateRequest.getPhone());
+        order.setNote(orderCreateRequest.getNote());
+        order.setPaymentMethod(orderCreateRequest.getPaymentMethod());
+        order.setDeliveryFee(new BigDecimal("5.00"));
+
         String orderNumber = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
         order.setOrderNumber(orderNumber);
         order.setCreateTime(new Date());
-        order.setStatus("待支付");
-        order.setPaymentStatus("未支付");
-        
-                // 自动计算总价（商品总价+配送费）
+
         BigDecimal total = BigDecimal.ZERO;
-        if (order.getOrderItems() != null) {
-            for (OrderItem item : order.getOrderItems()) {
-                if (item.getPrice() != null && item.getQuantity() != null) {
-                    total = total.add(item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-                }
+        List<OrderItem> orderItems = new ArrayList<>();
+
+        for (Cart cartItem : cartItems) {
+            Dish dish = dishDao.findById(cartItem.getDishId())
+                    .orElseThrow(() -> new BusinessException(404, "菜品不存在"));
+
+            if (dish.getStatus() == null || dish.getStatus() != 1) {
+                throw new BusinessException(400, "菜品已下架，无法提交订单");
             }
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setDishId(dish.getId());
+            orderItem.setName(dish.getName());
+            orderItem.setPrice(dish.getPrice());
+            orderItem.setQuantity(cartItem.getQuantity());
+            orderItem.setAmount(dish.getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+            orderItem.setImage(dish.getImage());
+            orderItems.add(orderItem);
+
+            total = total.add(orderItem.getAmount());
+            dish.setSales((dish.getSales() == null ? 0 : dish.getSales()) + cartItem.getQuantity());
+            dishDao.save(dish);
         }
+
         if (order.getDeliveryFee() != null) {
             total = total.add(order.getDeliveryFee());
         }
         order.setAmount(total);
-        
-        return orderDao.save(order);
+
+        if ("online".equalsIgnoreCase(orderCreateRequest.getPaymentMethod())) {
+            order.setStatus("已支付待配送");
+            order.setPaymentStatus("已支付");
+            order.setPaymentTime(new Date());
+        } else {
+            order.setStatus("待支付");
+            order.setPaymentStatus("未支付");
+        }
+
+        Order savedOrder = orderDao.save(order);
+
+        for (OrderItem orderItem : orderItems) {
+            orderItem.setOrderId(savedOrder.getId());
+        }
+        orderItemDao.saveAll(orderItems);
+        cartDao.deleteByUserId(userId);
+
+        savedOrder.setOrderItems(orderItems);
+        savedOrder.setUser(user);
+        return savedOrder;
     }
 
     @Override
@@ -79,7 +154,7 @@ public class OrderServiceImpl implements OrderService {
         order.setUpdateTime(new Date());
         
         // 根据状态更新其他时间字段
-        if ("已配送".equals(status)) {
+        if ("配送中".equals(status) || "已配送".equals(status)) {
             order.setDeliveryTime(new Date());
         } else if ("已完成".equals(status)) {
             order.setCompleteTime(new Date());
@@ -90,9 +165,35 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public Order cancelOrder(Long id) {
+    public Order cancelOrder(Long id, Integer userId) {
         Order order = getOrderById(id);
+
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权取消该订单");
+        }
+        if ("已完成".equals(order.getStatus()) || "已取消".equals(order.getStatus())) {
+            throw new BusinessException(400, "当前订单状态不可取消");
+        }
+
         order.setStatus("已取消");
+        order.setUpdateTime(new Date());
+        return orderDao.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order confirmOrderReceived(Long id, Integer userId) {
+        Order order = getOrderById(id);
+
+        if (!order.getUserId().equals(userId)) {
+            throw new BusinessException(403, "无权确认该订单");
+        }
+        if (!"配送中".equals(order.getStatus()) && !"已配送".equals(order.getStatus())) {
+            throw new BusinessException(400, "当前订单状态不可确认收货");
+        }
+
+        order.setStatus("已完成");
+        order.setCompleteTime(new Date());
         order.setUpdateTime(new Date());
         return orderDao.save(order);
     }

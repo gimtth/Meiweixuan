@@ -53,29 +53,17 @@ http.interceptors.request.use(
 // 响应拦截器
 http.interceptors.response.use(
   response => {
-    // 处理后端ApiResponse格式，提取data字段
-    const apiResponse = response.data;
-    
-    // 增强日志 - 打印完整响应
-    console.log(`响应数据: ${JSON.stringify(apiResponse)}`);
-    
-    // 兼容后端直接返回数组的情况
-    if (Array.isArray(apiResponse)) {
-      return apiResponse;
-    }
-    // 兼容后端直接返回对象且无code字段的情况
-    if (typeof apiResponse === 'object' && !('code' in apiResponse)) {
-      return apiResponse;
-    }
-    // 处理R<Map>格式响应
+    const apiResponse = response.data
+
+    console.log(`响应数据: ${JSON.stringify(apiResponse)}`)
+
     if (apiResponse.code === 200) {
-      console.log(`响应成功: ${response.config.url}`);
-      return apiResponse.data;
+      console.log(`响应成功: ${response.config.url}`)
+      return apiResponse.data
     } else {
-      // 如果后端返回错误码
-      console.error(`响应错误: ${response.config.url}, 错误码: ${apiResponse.code}, 消息: ${apiResponse.message}`);
-      ElMessage.error(apiResponse.message || '请求失败');
-      return Promise.reject(new Error(apiResponse.message || '请求失败'));
+      console.error(`响应错误: ${response.config.url}, 错误码: ${apiResponse.code}, 消息: ${apiResponse.message}`)
+      ElMessage.error(apiResponse.message || '请求失败')
+      return Promise.reject(new Error(apiResponse.message || '请求失败'))
     }
   },
   error => {

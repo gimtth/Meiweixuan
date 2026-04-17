@@ -63,7 +63,7 @@
             />
           </div>
           
-          <div class="form-group" v-if="formData.role === 'user'">
+          <div class="form-group">
             <label for="address">收货地址</label>
             <input 
               type="text" 
@@ -72,28 +72,6 @@
               placeholder="请输入收货地址" 
               required
             />
-          </div>
-          
-          <div class="form-group">
-            <label>用户类型</label>
-            <div class="role-selection">
-              <div 
-                class="role-option" 
-                :class="{ active: formData.role === 'user' }" 
-                @click="formData.role = 'user'"
-              >
-                <i class="fas fa-user"></i>
-                <span>普通用户</span>
-              </div>
-              <div 
-                class="role-option" 
-                :class="{ active: formData.role === 'admin' }" 
-                @click="formData.role = 'admin'"
-              >
-                <i class="fas fa-user-shield"></i>
-                <span>管理员</span>
-              </div>
-            </div>
           </div>
           
           <div v-if="error" class="error-message">
@@ -128,7 +106,7 @@ export default {
       name: '',
       phone: '',
       address: '',
-      role: 'user' // 默认为普通用户
+      role: 'user'
     });
     
     const confirmPassword = ref('');
@@ -152,7 +130,7 @@ export default {
         // 注册请求中添加角色信息
         await authStore.register({...formData});
         
-        ElMessage.success(`${formData.role === 'admin' ? '管理员' : '用户'}注册成功`);
+        ElMessage.success('注册成功，请登录');
         router.push('/login');
       } catch (err) {
         error.value = err.message || '注册失败，请稍后再试';
@@ -237,50 +215,6 @@ export default {
 .form-group textarea:focus {
   outline: none;
   border-color: var(--primary-color, #e53935);
-}
-
-/* 角色选择样式 */
-.role-selection {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.role-option {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 15px;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.role-option i {
-  font-size: 30px;
-  margin-bottom: 10px;
-  color: #666;
-}
-
-.role-option span {
-  font-weight: 500;
-}
-
-.role-option.active {
-  border-color: #e74c3c;
-  background-color: rgba(231, 76, 60, 0.05);
-}
-
-.role-option.active i {
-  color: #e74c3c;
-}
-
-.role-option:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .error-message {

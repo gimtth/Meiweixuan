@@ -30,6 +30,9 @@ public class Order {
     
     @Column(name = "phone")
     private String phone;
+
+    @Column(name = "note")
+    private String note;
     
     private String status;
     
@@ -114,6 +117,14 @@ public class Order {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public String getStatus() {
@@ -226,6 +237,7 @@ public class Order {
                 ", amount=" + amount +
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
+                ", note='" + note + '\'' +
                 ", status='" + status + '\'' +
                 ", deliveryFee=" + deliveryFee +
                 ", paymentMethod='" + paymentMethod + '\'' +

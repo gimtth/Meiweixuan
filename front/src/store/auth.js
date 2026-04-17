@@ -17,10 +17,15 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     // 初始化方法，检查登录状态的有效性
     init() {
-      // 如果有token但没有用户信息，可能是无效的登录状态
       if (this.token && !this.user) {
-        console.log('检测到无效的登录状态，清除登录信息');
-        this.clearAllAuthData();
+        this.user = {
+          id: this.isAdmin ? localStorage.getItem('adminId') : localStorage.getItem('userId'),
+          username: this.isAdmin ? localStorage.getItem('adminUsername') : localStorage.getItem('username'),
+          name: this.isAdmin ? localStorage.getItem('adminName') : localStorage.getItem('userName'),
+          phone: this.isAdmin ? localStorage.getItem('adminPhone') : localStorage.getItem('userPhone'),
+          address: localStorage.getItem('userAddress'),
+          role: this.isAdmin ? 'ROLE_ADMIN' : localStorage.getItem('userRole')
+        }
       }
     },
     
@@ -35,11 +40,14 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('userId');
       localStorage.removeItem('username');
       localStorage.removeItem('userName');
+      localStorage.removeItem('userPhone');
+      localStorage.removeItem('userAddress');
       localStorage.removeItem('userRole');
       localStorage.removeItem('adminToken');
       localStorage.removeItem('adminId');
       localStorage.removeItem('adminUsername');
       localStorage.removeItem('adminName');
+      localStorage.removeItem('adminPhone');
       localStorage.removeItem('isAdmin');
     },
     
@@ -57,13 +65,7 @@ export const useAuthStore = defineStore('auth', {
     },
     
     async register(userData) {
-      try {
-        const response = await authApi.register(userData)
-        this.setUserAuthData(response)
-        return response
-      } catch (error) {
-        throw error
-      }
+      return authApi.register(userData)
     },
     
     async adminLogin(credentials) {
@@ -119,18 +121,24 @@ export const useAuthStore = defineStore('auth', {
       this.token = token
       
       this.user = {
-        id: user.id,
+        id: user.id || jwtResponse.id,
         username: user.username || jwtResponse.username,
-        name: user.name
+        name: user.name || jwtResponse.name,
+        phone: user.phone || jwtResponse.phone,
+        address: user.address || jwtResponse.address,
+        role: user.role || jwtResponse.role || 'ROLE_USER'
       }
       
       this.isAdmin = false
       
       // 存储用户数据
       localStorage.setItem('token', token)
-      localStorage.setItem('userId', user.id)
+      localStorage.setItem('userId', user.id || jwtResponse.id || '')
       localStorage.setItem('username', user.username || jwtResponse.username)
       localStorage.setItem('userName', user.name)
+      localStorage.setItem('userPhone', user.phone || jwtResponse.phone || '')
+      localStorage.setItem('userAddress', user.address || jwtResponse.address || '')
+      localStorage.setItem('userRole', user.role || jwtResponse.role || 'ROLE_USER')
       localStorage.setItem('isAdmin', 'false')
       
       // 清除管理员数据
@@ -151,18 +159,21 @@ export const useAuthStore = defineStore('auth', {
       this.token = token
       
       this.user = {
-        id: admin.id,
+        id: admin.id || adminJwtResponse.id,
         username: admin.username || adminJwtResponse.username,
-        name: admin.name
+        name: admin.name || adminJwtResponse.name,
+        phone: admin.phone || adminJwtResponse.phone,
+        role: 'ROLE_ADMIN'
       }
       
       this.isAdmin = true
       
       // 存储管理员数据
       localStorage.setItem('adminToken', token)
-      localStorage.setItem('adminId', admin.id)
+      localStorage.setItem('adminId', admin.id || adminJwtResponse.id || '')
       localStorage.setItem('adminUsername', admin.username || adminJwtResponse.username)
       localStorage.setItem('adminName', admin.name || admin.username || adminJwtResponse.username || '')
+      localStorage.setItem('adminPhone', admin.phone || adminJwtResponse.phone || '')
       localStorage.setItem('isAdmin', 'true')
       
       // 清除普通用户数据
@@ -173,9 +184,10 @@ export const useAuthStore = defineStore('auth', {
     },
     
     logout() {
+      const wasAdmin = this.isAdmin
       this.clearAllAuthData();
       
-      if (this.isAdmin) {
+      if (wasAdmin) {
         router.push('/admin/login');
       } else {
         router.push('/login');
